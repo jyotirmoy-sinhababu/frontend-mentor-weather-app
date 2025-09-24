@@ -7,7 +7,7 @@ type Location = {
   longitude: number | null;
 };
 
-export const useFetchLocationBySearch = (searchedText: string) => {
+export const fetchLocationBySearch = (searchedText: string) => {
   const [location, setLocation] = useState<Location>({
     latitude: null,
     longitude: null,
