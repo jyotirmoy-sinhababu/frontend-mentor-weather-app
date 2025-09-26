@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Settings, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -21,7 +22,8 @@ const Navbar = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant='outline' size='sm' className='gap-2 bg-transparent'>
-            Units
+            <Settings />
+            Units <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
