@@ -1,21 +1,42 @@
 'use client';
 import axios from 'axios';
 
-export type Units = {
-  temperature: string;
-  windSpeed: string;
-  precipitation: string;
+export type UnitSystem = 'metric' | 'imperial';
+export type UnitOverrides = {
+  temperature?: 'celsius' | 'fahrenheit';
+  windSpeed?: 'kmh' | 'ms' | 'mph' | 'kn';
+  precipitation?: 'mm' | 'inch';
 };
 
-export const useFetchWeatherData = async (
+export const fetchWeatherData = async (
   latitude: number,
   longitude: number,
-  unit: Units
+  system: UnitSystem = 'metric',
+  overrides: UnitOverrides = {}
 ) => {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&timezone=auto&temperature_unit=${temperatureUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
+    let defaults: UnitOverrides =
+      system === 'metric'
+        ? { temperature: 'celsius', windSpeed: 'kmh', precipitation: 'mm' }
+        : {
+            temperature: 'fahrenheit',
+            windSpeed: 'mph',
+            precipitation: 'inch',
+          };
 
-    const weatherData = await axios.get(url).then((res) => {
+    const units: UnitOverrides = { ...defaults, ...overrides };
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&timezone=auto&temperature_unit=${units.temperature}&wind_speed_unit=${units.windSpeed}&precipitation_unit=${units.precipitation}`;
+
+    const weatherData: any = await axios.get(url).then((res) => {
+      console.log(res.data);
+      const hourlyData = res.data.hourly.time.map((t: string, i: number) => ({
+        time: t,
+        temperature: res.data.hourly.temperature_2m[i],
+        weatherCode: res.data.hourly.weather_code[i],
+      }));
+
+      console.log(hourlyData[0]);
       return res;
     });
     return weatherData;
@@ -23,5 +44,3 @@ export const useFetchWeatherData = async (
     console.log(error, 'trouble fetching weather data');
   }
 };
-
-export default useFetchWeatherData;
